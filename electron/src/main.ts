@@ -10,6 +10,15 @@ import { getSettings } from './backend/settings';
 import { getOnboardingState } from './backend/onboarding';
 import { hardenWindow } from './windowHardening';
 
+// Apps launched from Finder/Dock get a minimal PATH (/usr/bin:/bin:...), so
+// `python3` resolves to Apple's stock Python and `ffmpeg` isn't found. Add the
+// usual Homebrew locations so the transcription engine is detected.
+if (process.platform === 'darwin') {
+  const extra = ['/opt/homebrew/bin', '/opt/homebrew/sbin', '/usr/local/bin'];
+  const current = (process.env.PATH || '').split(':').filter(Boolean);
+  process.env.PATH = [...extra.filter((d) => !current.includes(d)), ...current].join(':');
+}
+
 const appRoot = path.resolve(__dirname, '..', '..');
 const PRODUCT_NAME = BUILD_CONFIG.PRODUCT_NAME;
 
